@@ -30567,7 +30567,7 @@ async function getVersion() {
 }
 async function verifyArchiveAttestation(archivePath) {
     const githubToken = core.getInput('github-token');
-    await exec.exec('gh', ['attestation', 'verify', archivePath, '--repo', 'rgst-io/stencil'], {
+    await exec.exec('gh', ['attestation', 'verify', '--deny-self-hosted-runners', '--repo', 'rgst-io/stencil', archivePath], {
         env: {
             GH_TOKEN: githubToken
         }
