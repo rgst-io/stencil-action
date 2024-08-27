@@ -129,7 +129,14 @@ async function verifyArchiveAttestation(archivePath: string): Promise<void> {
 
   await exec.exec(
     'gh',
-    ['attestation', 'verify','--deny-self-hosted-runners', '--repo', 'rgst-io/stencil', archivePath],
+    [
+      'attestation',
+      'verify',
+      '--deny-self-hosted-runners',
+      '--repo',
+      'rgst-io/stencil',
+      archivePath
+    ],
     {
       env: {
         GH_TOKEN: githubToken
