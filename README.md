@@ -8,8 +8,8 @@
 
 ## Usage
 
-Currently, the only functionality exposed is to install `stencil` for
-usage in other steps.
+Currently, the only functionality exposed is to install `stencil` for usage in
+other steps.
 
 ```yaml
 steps:
@@ -27,7 +27,6 @@ steps:
       # Optional: Location to install stencil to. Automatically added
       # to the $PATH.
       binary-dir: '~/.local/bin'
-
 
   - name: Use Stencil
     run: stencil --version
