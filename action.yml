@@ -1,23 +1,25 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: stencil-action
+description: Github Action for interacting with stencil
+author: Jared Allard <@jaredallard>
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'book'
+  color: 'yellow'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  github-token:
+    description:
+      'The GitHub token to use for fetching the latest version of stencil'
 
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  version:
+    description: 'The version of stencil to use'
+    default: 'latest'
+
+  binary-dir:
+    description: 'The directory to store the binary in'
+    default: '~/.local/bin'
 
 runs:
   using: node20
