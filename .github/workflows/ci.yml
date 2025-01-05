@@ -60,6 +60,7 @@ jobs:
           github-token: ${{ github.token }}
           version: 'latest'
           binary-dir: '~/.local/bin'
+          prereleases: true
 
       - name: Run Stencil
         id: test-action-run

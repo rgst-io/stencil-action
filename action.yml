@@ -21,6 +21,11 @@ inputs:
     description: 'The directory to store the binary in'
     default: '~/.local/bin'
 
+  prereleases:
+    description: >
+      Whether to consider prereleases or not when downloading the latest version
+    default: 'false'
+
 runs:
   using: node20
   main: dist/index.js

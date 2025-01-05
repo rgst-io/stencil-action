@@ -30040,6 +30040,9 @@ async function getVersion() {
     if (version && version !== 'latest') {
         return version;
     }
+    const prereleases = core.getBooleanInput('prereleases');
+    if (prereleases)
+        core.debug('prereleases will be considered');
     const octokit = github.getOctokit(core.getInput('github-token'));
     const releases = await octokit.rest.repos.listReleases({
         owner: 'rgst-io',
@@ -30048,7 +30051,16 @@ async function getVersion() {
     if (releases.data.length === 0) {
         throw new Error('No releases found');
     }
-    return releases.data[0].tag_name.replace(/^v/, '');
+    // Find the first non-prerelease release
+    for (const release of releases.data) {
+        // If we're not considering prereleases, but this release is a
+        // prerelease then we should skip it.
+        if (!prereleases && release.prerelease)
+            continue;
+        return releases.data[0].tag_name.replace(/^v/, '');
+    }
+    // Didn't find a release somehow.
+    throw new Error('Failed to find a release');
 }
 async function verifyArchiveAttestation(archivePath) {
     const githubToken = core.getInput('github-token');
