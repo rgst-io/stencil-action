@@ -1,7 +1,7 @@
 {
   "name": "stencil-action",
   "description": "GitHub Actions for interacting with stencil",
-  "version": "v1.0.0",
+  "version": "v1.1.0",
   "author": "Jared Allard <jaredallard@users.noreply.github.com>",
   "type": "module",
   "private": true,
