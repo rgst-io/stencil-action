@@ -11,7 +11,8 @@ branding:
 inputs:
   github-token:
     description:
-      'The GitHub token to use for fetching the latest version of stencil'
+      'The GitHub token to use for fetching the latest version of stencil and
+      verifying attestations (GitHub source only)'
 
   version:
     description: 'The version of stencil to use'

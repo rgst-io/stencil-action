@@ -24,53 +24,55 @@
     "node": ">=24"
   },
   "scripts": {
-    "bundle": "npm run format:write && npm run package",
+    "bundle": "yarn run format:write && yarn run package",
     "ci-test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "package": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
-    "package:watch": "npm run package -- --watch",
-    "test": "npm run ci-test",
+    "package:watch": "yarn run package -- --watch",
+    "test": "yarn run ci-test",
     "ci-test-local": "gh act --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-24.04 --job test-action --secret GITHUB_TOKEN=$(gh auth token)",
-    "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
+    "all": "yarn run format:write && yarn run lint && yarn run test && yarn run coverage && yarn run package"
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^3.0.0",
+    "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@actions/github": "^9.0.0",
-    "@actions/io": "^3.0.2"
+    "@actions/github": "^9.1.1",
+    "@actions/io": "^3.0.2",
+    "gitea-js": "^1.23.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.3",
+    "@eslint/compat": "^2.1.0",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
     "@github/local-action": "^7.0.1",
-    "@jest/globals": "^30.3.0",
-    "@rollup/plugin-commonjs": "^29.0.0",
+    "@jest/globals": "^30.4.1",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/jest": "^30.0.0",
     "@types/node": "^24",
-    "@typescript-eslint/eslint-plugin": "^8.57.2",
-    "@typescript-eslint/parser": "^8.57.2",
-    "eslint": "^9.33.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jest": "^29.15.1",
-    "eslint-plugin-prettier": "^5.5.4",
-    "jest": "^30.3.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-jest": "^29.15.3",
+    "eslint-plugin-prettier": "^5.5.6",
+    "jest": "^30.4.2",
     "make-coverage-badge": "^1.2.0",
-    "prettier": "^3.8.1",
-    "prettier-eslint": "^16.4.2",
-    "rollup": "^4.60.0",
-    "ts-jest": "^29.4.1",
+    "prettier": "^3.8.5",
+    "prettier-eslint": "^17.1.1",
+    "rollup": "^4.62.2",
+    "ts-jest": "^29.4.11",
     "ts-jest-resolver": "^2.0.1",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "*"
   },
-  "packageManager": "yarn@4.13.0+sha512.5c20ba010c99815433e5c8453112165e673f1c7948d8d2b267f4b5e52097538658388ebc9f9580656d9b75c5cc996f990f611f99304a2197d4c56d21eea370e7"
+  "packageManager": "yarn@4.17.0+sha512.c2957de2f9025ab14d63b24d0d8be1f1655810e22c341042c27f7ecd017b180ec12db73d69ac366d71b304ef9f069349ce462de96f04f8f1da317f4f762c95ae"
 }
