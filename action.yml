@@ -10,12 +10,15 @@ branding:
 # Define your inputs here.
 inputs:
   github-token:
-    description:
-      'The GitHub token to use for fetching the latest version of stencil and
-      verifying attestations (GitHub source only)'
+    description: 'Unused. stencil is downloaded from bins.rgst.io'
+    deprecationMessage:
+      'github-token is no longer used, stencil is downloaded from bins.rgst.io.
+      It can be removed.'
 
   version:
-    description: 'The version of stencil to use'
+    description: >
+      The version of stencil to use. 'latest' resolves the latest version from
+      bins.rgst.io
     default: 'latest'
 
   binary-dir:
@@ -24,7 +27,8 @@ inputs:
 
   prereleases:
     description: >
-      Whether to consider prereleases or not when downloading the latest version
+      Whether to consider prereleases or not when resolving 'latest' (uses
+      LATEST_PRERELEASE instead of LATEST on bins.rgst.io)
     default: 'false'
 
 runs:

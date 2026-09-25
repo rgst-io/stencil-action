@@ -1,7 +1,7 @@
 {
   "name": "stencil-action",
   "description": "GitHub Actions for interacting with stencil",
-  "version": "v3.0.0",
+  "version": "v4.0.0",
   "author": "Jared Allard <jaredallard@users.noreply.github.com>",
   "type": "module",
   "private": true,
@@ -40,9 +40,7 @@
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@actions/github": "^9.1.1",
-    "@actions/io": "^3.0.2",
-    "gitea-js": "^1.23.0"
+    "@actions/io": "^3.0.2"
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",

@@ -46,28 +46,34 @@ jobs:
         with:
           persist-credentials: false
 
-      ## Latest
       - name: can install latest
         uses: ./
         with:
-          github-token: ${{ github.token }}
+          version: 'latest'
+          binary-dir: '~/.local/bin'
+
+      - name: can install latest prerelease
+        uses: ./
+        with:
           version: 'latest'
           binary-dir: '~/.local/bin'
           prereleases: true
 
-      ## Forgejo
-      - name: can install from forgejo
+      - name: can install 3.0.0
         uses: ./
         with:
-          github-token: ${{ github.token }}
+          version: '3.0.0'
+          binary-dir: '~/.local/bin'
+
+      - name: can install a prerelease
+        uses: ./
+        with:
           version: '2.19.0-rc.1'
           binary-dir: '~/.local/bin'
 
-      ## Github
-      - name: can install from github
+      - name: can install a backfilled release
         uses: ./
         with:
-          github-token: ${{ github.token }}
           version: '2.18.0'
           binary-dir: '~/.local/bin'
 

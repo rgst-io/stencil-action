@@ -11,12 +11,10 @@
 Currently, the only functionality exposed is to install `stencil` for usage in
 other steps.
 
-This action supports both **Forgejo** and **GitHub** as sources for the stencil
-binary. When resolving `latest`, it tries Forgejo first and falls back to GitHub
-if unavailable.
-
-- **Forgejo source:** Verifies the archive using GPG signature (ed25519 key)
-- **GitHub source:** Verifies the archive using GitHub attestation
+The stencil binary is downloaded from the `bins.rgst.io` CDN, and every archive
+is verified against its detached GPG signature using the embedded rgst.io
+release key (`515E8B922886A22A485C1C9F2DCAE84699708BC6`). `gpg` must be
+available on the runner.
 
 ```yaml
 steps:
@@ -27,8 +25,6 @@ steps:
   - name: Install Stencil
     uses: rgst-io/stencil-action@latest
     with:
-      # Used for attestation validation and when version is 'latest' (GitHub fallback).
-      github-token: ${{ github.token }}
       # Optional: Version of stencil to install.
       version: 'latest'
       # Optional: Location to install stencil to. Automatically added
@@ -41,27 +37,22 @@ steps:
 
 ### Inputs
 
-| Input          | Default          | Description                                                                                |
-| -------------- | ---------------- | ------------------------------------------------------------------------------------------ |
-| `github-token` | _(required)_     | Token for GitHub attestation validation and fetching latest version from GitHub (fallback) |
-| `version`      | `'latest'`       | Version of stencil to install. If set explicitly, Forgejo is used as the download source   |
-| `binary-dir`   | `'~/.local/bin'` | Directory to store the binary (automatically added to `$PATH`)                             |
-| `prereleases`  | `'false'`        | Whether to consider prereleases when resolving `latest`                                    |
+| Input          | Default          | Description                                                    |
+| -------------- | ---------------- | -------------------------------------------------------------- |
+| `version`      | `'latest'`       | Version of stencil to install                                  |
+| `binary-dir`   | `'~/.local/bin'` | Directory to store the binary (automatically added to `$PATH`) |
+| `prereleases`  | `'false'`        | Whether to consider prereleases when resolving `latest`        |
+| `github-token` |                  | Deprecated and unused                                          |
 
 ### Version Resolution
 
-When `version` is set to `'latest'`:
+When `version` is `'latest'`, the version is read from
+`https://bins.rgst.io/rgst-io/stencil/LATEST`, or from `LATEST_PRERELEASE` when
+`prereleases` is `true`.
 
-1. The action tries Forgejo (`git.rgst.io`) first via the Gitea-compatible API
-2. If Forgejo is unavailable or returns no releases, it falls back to GitHub
-3. The source (Forgejo or GitHub) is logged in the action output
-
-When `version` is set to an explicit value (e.g., `'1.2.3'`):
-
-- The action tries Forgejo first, then falls back to GitHub if the release is
-  not found
-- Forgejo source verifies via GPG signature; GitHub source verifies via
-  attestation
+Every version is then downloaded from
+`https://bins.rgst.io/rgst-io/stencil/<version>/stencil_<version>_<os>_<arch>.tar.gz`
+and verified with the matching `.sig`.
 
 ## Publishing a New Release
 

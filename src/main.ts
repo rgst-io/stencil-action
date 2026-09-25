@@ -6,23 +6,14 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 import {
-  getForgejoAssetUrl,
-  getForgejoVersion,
-  forgejoReleaseExists,
+  downloadFile,
+  getCdnAssetUrl,
+  getLatestVersion,
   verifyArchiveGpgSignature
-} from './forgejo.js'
-import {
-  getGitHubAssetUrl,
-  getGitHubVersion,
-  verifyArchiveAttestation
-} from './github.js'
+} from './cdn.js'
 
 type GoPlatform = 'windows' | 'darwin' | 'linux'
 type GoArch = 'amd64' | '386' | 'arm64' | 'armv6' | `ppc64`
-
-// ── Configuration ──────────────────────────────────────────────────────────────
-
-const FORGEJO_URL = 'https://git.rgst.io'
 
 /**
  * The main function for the action.
@@ -30,7 +21,7 @@ const FORGEJO_URL = 'https://git.rgst.io'
  */
 export async function run(): Promise<void> {
   try {
-    const { version, source } = await getVersion()
+    const version = await getVersion()
     let binaryDir = core.getInput('binary-dir')
 
     // Resolve ~ to the user's home directory
@@ -82,51 +73,21 @@ export async function run(): Promise<void> {
         throw new Error('Unsupported architecture')
     }
 
-    // Determine the effective source — for explicit versions, try Forgejo first
-    let effectiveSource: VersionSource = source
-
-    if (source === 'forgejo' && !isExplicitVersion()) {
-      // Version was resolved from Forgejo API — already confirmed available
-    } else if (source === 'forgejo') {
-      // Explicit version — try Forgejo download, fall back to GitHub
-      effectiveSource = await tryDownloadWithFallback(version)
-    }
-
-    const platformLabel = effectiveSource === 'forgejo' ? 'Forgejo' : 'GitHub'
-    core.info(`Using stencil@${version} (source: ${platformLabel})`)
+    core.info(`Using stencil@${version}`)
 
     const archiveName = `stencil_${version}_${osName}_${osArch}.tar.gz`
-    const downloadURL =
-      effectiveSource === 'forgejo'
-        ? await getForgejoAssetUrl(version, archiveName)
-        : await getGitHubAssetUrl(version, archiveName)
-
-    if (!downloadURL) {
-      throw new Error(
-        `Asset ${archiveName} not found in v${version} release on ${platformLabel}`
-      )
-    }
+    const downloadURL = getCdnAssetUrl(version, archiveName)
 
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stencil-action-'))
     const tempArchive = path.join(tempDir, 'stencil.tar.gz')
+    const tempSig = path.join(tempDir, 'stencil.tar.gz.sig')
 
     core.info(`Downloading stencil from ${downloadURL} to ${tempDir}`)
     await downloadFile(downloadURL, tempArchive)
+    await downloadFile(`${downloadURL}.sig`, tempSig)
 
-    // Verify the archive — GPG for Forgejo, attestation for GitHub
-    if (effectiveSource === 'forgejo') {
-      core.info('Verifying archive GPG signature')
-      await verifyArchiveGpgSignature(
-        tempArchive,
-        tempDir,
-        version,
-        osName,
-        osArch
-      )
-    } else {
-      core.info('Verifying archive attestation')
-      await verifyArchiveAttestation(tempArchive)
-    }
+    core.info('Verifying archive GPG signature')
+    await verifyArchiveGpgSignature(tempArchive, tempSig)
 
     core.debug(`Extracting stencil.tar.gz to ${tempDir}`)
     await exec.exec('tar', ['-xzf', tempArchive, '-C', tempDir])
@@ -154,72 +115,20 @@ export async function run(): Promise<void> {
   }
 }
 
-type VersionSource = 'forgejo' | 'github'
-
-interface ResolvedVersion {
-  version: string
-  source: VersionSource
-  explicit: boolean
-}
-
-function isExplicitVersion(): boolean {
-  const version = core.getInput('version').replace(/^v/, '')
-  return version !== '' && version !== 'latest'
-}
-
 /**
- * Download a file from a URL to a local path using Node's built-in fetch.
+ * Resolve the stencil version to install. 'latest' (or no version) is looked
+ * up from the CDN.
  */
-async function downloadFile(url: string, outputPath: string): Promise<void> {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(
-      `Failed to download ${url}: HTTP ${response.status} ${response.statusText}`
-    )
-  }
-
-  const buffer = Buffer.from(await response.arrayBuffer())
-  fs.writeFileSync(outputPath, buffer)
-}
-
-/**
- * For explicit versions, try Forgejo first and fall back to GitHub.
- */
-async function tryDownloadWithFallback(
-  version: string
-): Promise<VersionSource> {
-  if (await forgejoReleaseExists(version)) {
-    return 'forgejo'
-  }
-
-  core.debug(`Forgejo does not have v${version}, falling back to GitHub`)
-  return 'github'
-}
-
-/**
- * Resolve the stencil version, trying Forgejo first and falling back to GitHub.
- */
-async function getVersion(): Promise<ResolvedVersion> {
+async function getVersion(): Promise<string> {
   const version = core.getInput('version').replace(/^v/, '')
   if (version && version !== 'latest') {
-    // Explicit version — will try Forgejo first at download time
-    return { version, source: 'forgejo', explicit: true }
+    return version
   }
 
   const prereleases = core.getBooleanInput('prereleases')
   if (prereleases) core.debug('prereleases will be considered')
 
-  // Try Forgejo first
-  core.debug(`Trying Forgejo at ${FORGEJO_URL} for latest version`)
-  const forgejoVersion = await getForgejoVersion(FORGEJO_URL, prereleases)
-  if (forgejoVersion) {
-    core.info(`Found latest version ${forgejoVersion} on Forgejo`)
-    return { version: forgejoVersion, source: 'forgejo', explicit: false }
-  }
-
-  // Fall back to GitHub
-  core.debug('Forgejo unavailable, falling back to GitHub')
-  const githubVersion = await getGitHubVersion(prereleases)
-  core.info(`Found latest version ${githubVersion} on GitHub`)
-  return { version: githubVersion, source: 'github', explicit: false }
+  const latest = await getLatestVersion(prereleases)
+  core.info(`Found latest version ${latest}`)
+  return latest
 }
